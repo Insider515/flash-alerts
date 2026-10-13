@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>flash-alerts — Neon Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ----------  Цветовая палитра неон-UI ---------- */
+  :root {
+      --bg-void:      #060814;
+      --bg-panel:     #0b1024;
+      --bg-card:      #0e1530;
+      --bg-card-hi:   #142045;
+      --border-dim:   #1a2550;
+      --cyan:         #22d3ee;
+      --cyan-soft:    #67e8f9;
+      --magenta:      #f0338a;
+      --pink:         #ff2d87;
+      --green:        #22c55e;
+      --amber:        #f59e0b;
+      --yellow:       #fbbf24;
+      --purple:       #c084fc;
+      --violet:       #a855f7;
+      --text:         #e2e8f0;
+      --text-dim:     #94a3b8;
+      --text-mute:    #64748b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+      font-family: 'Chakra Petch', 'Segoe UI', sans-serif;
+      background:
+          radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 211, 238, .08), transparent 60%),
+          radial-gradient(ellipse 60% 40% at 80% 120%, rgba(240, 51, 138, .08), transparent 60%),
+          var(--bg-void);
+      color: var(--text);
+      margin: 0;
+      padding: 40px 24px;
+      min-height: 100vh;
+      letter-spacing: .01em;
+  }
+
+  /* ----------  Главный контейнер — панель с cyan-glow ---------- */
+  .deck {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--bg-panel);
+      border: 1px solid var(--cyan);
+      border-radius: 10px;
+      padding: 36px 40px 44px;
+      box-shadow:
+          0 0 0 1px rgba(34, 211, 238, .15),
+          0 0 40px rgba(34, 211, 238, .18),
+          inset 0 0 100px rgba(34, 211, 238, .025);
+  }
+
+  /* ----------  Заголовок ---------- */
+  .deck > header { margin-bottom: 32px; }
+  .deck h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      color: var(--cyan);
+      margin: 0;
+      text-shadow:
+          0 0 8px rgba(34, 211, 238, .6),
+          0 0 24px rgba(34, 211, 238, .35);
+  }
+  .subtitle {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      letter-spacing: .05em;
+  }
+
+  /* ----------  Заголовки секций ---------- */
+  .section {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin: 32px 0 14px;
+  }
+  .section.cyan   { color: var(--cyan);    text-shadow: 0 0 10px rgba(34, 211, 238, .35); }
+  .section.pink   { color: var(--pink);    text-shadow: 0 0 10px rgba(255, 45, 135, .35); }
+  .section.green  { color: var(--green);   text-shadow: 0 0 10px rgba(34, 197, 94, .35); }
+  .section.amber  { color: var(--amber);   text-shadow: 0 0 10px rgba(245, 158, 11, .4); }
+  .section.violet { color: var(--violet);  text-shadow: 0 0 10px rgba(168, 85, 247, .35); }
+  .section .count { color: var(--text-mute); font-weight: 500; margin-left: 6px; }
+
+  /* ----------  Сетка карточек ---------- */
+  .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+  }
+  .grid.pos { grid-template-columns: repeat(3, 1fr); }
+  .grid.speed-presets { grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+
+  /* ----------  Карточка (общее) ---------- */
+  .card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease, box-shadow .15s ease, transform .08s ease;
+      font-family: inherit;
+      color: var(--text);
+      text-align: left;
+  }
+  .card:hover {
+      background: var(--bg-card-hi);
+      transform: translateY(-1px);
+  }
+  .card:active { transform: translateY(0); }
+  .card .title {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: .02em;
+      margin-bottom: 4px;
+  }
+  .card .meta {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: .04em;
+  }
+
+  /* ----------  Цветовые акценты карточек ---------- */
+  .card.cyan   { border-color: rgba(34, 211, 238, .4); }
+  .card.cyan   .title { color: var(--cyan); }
+  .card.cyan:hover { border-color: var(--cyan); box-shadow: 0 0 20px rgba(34, 211, 238, .25); }
+
+  .card.pink   { border-color: rgba(255, 45, 135, .4); }
+  .card.pink   .title { color: var(--pink); }
+  .card.pink:hover { border-color: var(--pink); box-shadow: 0 0 20px rgba(255, 45, 135, .25); }
+
+  .card.green  { border-color: rgba(34, 197, 94, .4); }
+  .card.green  .title { color: var(--green); }
+  .card.green:hover { border-color: var(--green); box-shadow: 0 0 20px rgba(34, 197, 94, .25); }
+
+  .card.amber  { border-color: rgba(245, 158, 11, .4); }
+  .card.amber  .title { color: var(--amber); }
+  .card.amber:hover { border-color: var(--amber); box-shadow: 0 0 20px rgba(245, 158, 11, .25); }
+
+  .card.violet { border-color: rgba(168, 85, 247, .4); }
+  .card.violet .title { color: var(--violet); }
+  .card.violet:hover { border-color: var(--violet); box-shadow: 0 0 20px rgba(168, 85, 247, .25); }
+
+  .card.red    { border-color: rgba(239, 68, 68, .4); }
+  .card.red    .title { color: #ef4444; }
+  .card.red:hover { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, .25); }
+
+  /* ----------  Контролы скорости ---------- */
+  .controls {
+      background: var(--bg-card);
+      border: 1px solid rgba(34, 211, 238, .3);
+      border-radius: 8px;
+      padding: 20px 22px;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  .controls label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--cyan-soft);
+  }
+  .controls .row { display: flex; align-items: center; gap: 10px; }
+  .controls input[type="range"] {
+      flex: 1;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      height: 24px;
+      cursor: pointer;
+  }
+  .controls input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      background: linear-gradient(90deg, var(--cyan), var(--pink));
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(34, 211, 238, .5);
+  }
+  .controls input[type="range"]::-moz-range-track {
+      height: 4px;
+      background: linear-gradient(90deg, var(--cyan), var(--pink));
+      border-radius: 2px;
+  }
+  .controls input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: var(--bg-void);
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 10px rgba(34, 211, 238, .8);
+  }
+  .controls input[type="range"]::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--bg-void);
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 10px rgba(34, 211, 238, .8);
+  }
+  .controls output {
+      font-family: 'Orbitron', monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--cyan);
+      min-width: 64px;
+      text-align: right;
+      padding: 4px 10px;
+      background: rgba(34, 211, 238, .08);
+      border: 1px solid rgba(34, 211, 238, .3);
+      border-radius: 4px;
+  }
+
+  /* ----------  Inline target panel ---------- */
+  .inline-panel {
+      margin-top: 14px;
+      background: var(--bg-card);
+      border: 1px dashed rgba(251, 191, 36, .5);
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 100px;
+      color: var(--text-dim);
+      font-size: 13px;
+      text-align: center;
+      letter-spacing: .04em;
+  }
+  .inline-trigger {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      max-width: 320px;
+  }
+
+  /* ----------  Футер ---------- */
+  footer {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-dim);
+      font-size: 12px;
+      color: var(--text-mute);
+      letter-spacing: .08em;
+      text-align: center;
+      text-transform: uppercase;
+      font-family: 'Orbitron', sans-serif;
+  }
+  footer .brand { color: var(--cyan); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<main class="deck">
+
+  <header>
+    <h1>FLASH ALERTS</h1>
+    <div class="subtitle">Tactical Dashboard Alerts &amp; Toast Terminal</div>
+  </header>
+
+  <!-- ====== Скорости ====== -->
+  <div class="section cyan">Animation Speeds</div>
+  <div class="controls">
+      <label>
+          Duration (ms)
+          <div class="row">
+              <input type="range" id="duration" min="200" max="10000" step="100" value="2800">
+              <output id="durationVal">2800</output>
+          </div>
+      </label>
+      <label>
+          Animation (ms)
+          <div class="row">
+              <input type="range" id="animation" min="0" max="2000" step="10" value="300">
+              <output id="animationVal">300</output>
+          </div>
+      </label>
+      <label>
+          Typing Speed (ms/char)
+          <div class="row">
+              <input type="range" id="typingSpeed" min="1" max="300" step="1" value="30">
+              <output id="typingSpeedVal">30</output>
+          </div>
+      </label>
+  </div>
+
+  <div class="section amber">Speed Presets</div>
+  <div class="grid speed-presets">
+      <button class="card amber" data-preset-speed="fast">
+          <div class="title">FAST</div>
+          <div class="meta">800 / 120 / 10</div>
+      </button>
+      <button class="card amber" data-preset-speed="normal">
+          <div class="title">NORMAL</div>
+          <div class="meta">2800 / 300 / 30</div>
+      </button>
+      <button class="card amber" data-preset-speed="slow">
+          <div class="title">SLOW</div>
+          <div class="meta">6000 / 900 / 90</div>
+      </button>
+  </div>
+
+  <!-- ====== Позиции ====== -->
+  <div class="section cyan">Screen Positions <span class="count">(9 slots)</span></div>
+  <div class="grid pos" id="positions"></div>
+
+  <!-- ====== Эффекты ====== -->
+  <div class="section pink">Animation Effects <span class="count">(6 built-in)</span></div>
+  <div class="grid" id="effects"></div>
+
+  <!-- ====== Пресеты ====== -->
+  <div class="section green">Alert Presets <span class="count">(4 built-in)</span></div>
+  <div class="grid" id="presets"></div>
+
+  <!-- ====== Кастомы ====== -->
+  <div class="section violet">Custom Modules</div>
+  <div class="grid">
+      <button class="card violet" id="customPreset">
+          <div class="title">PROMO</div>
+          <div class="meta">Custom preset — gradient + shadow</div>
+      </button>
+      <button class="card violet" id="customEffect">
+          <div class="title">ROTATE</div>
+          <div class="meta">Custom effect — rotate + scale</div>
+      </button>
+  </div>
+
+  <!-- ====== Inline target ====== -->
+  <div class="section amber">Inline Target</div>
+  <div class="inline-panel" id="inlineBox">// Target zone — alerts render inside this container</div>
+  <div class="inline-trigger">
+      <button class="card amber" id="inline">
+          <div class="title">DEPLOY INLINE</div>
+          <div class="meta">Mount alert inside #inlineBox</div>
+      </button>
+  </div>
+
+  <footer>
+      <span class="brand">flash-alerts</span> &nbsp;·&nbsp; neon dashboard build
+  </footer>
+
+</main>
+
+<script src="../src/flash-alerts.js"></script>
+<script>
+  // Один инстанс FlashAlerts на всю страницу — дефолты заменяются текущими значениями ползунков.
+  const alerts = new FlashAlerts({
+      duration: 2800,
+      animation: 300,
+      style: {
+          'background': 'rgba(14, 21, 48, 0.95)',
+          'color': '#e2e8f0',
+          'border': '1px solid rgba(34, 211, 238, .6)',
+          'border-radius': '6px',
+          'padding': '14px 20px',
+          'font-family': 'Chakra Petch, sans-serif',
+          'font-size': '14px',
+          'font-weight': '500',
+          'box-shadow': '0 0 24px rgba(34, 211, 238, .25), 0 10px 30px rgba(0, 0, 0, .4)',
+          'letter-spacing': '.02em'
+      }
+  });
+
+  // Привязываем range-инпуты к output-подписям и к текущим значениям скорости.
+  const speed = (function () {
+      const ranges = ['duration', 'animation', 'typingSpeed'];
+      const inputs = {};
+      ranges.forEach(function (name) {
+          const inp = document.getElementById(name);
+          const out = document.getElementById(name + 'Val');
+          inputs[name] = inp;
+          inp.addEventListener('input', function () { out.textContent = inp.value; });
+      });
+      return {
+          get: function () {
+              return {
+                  duration:    Number(inputs.duration.value),
+                  animation:   Number(inputs.animation.value),
+                  typingSpeed: Number(inputs.typingSpeed.value)
+              };
+          },
+          set: function (d, a, t) {
+              inputs.duration.value = d;
+              inputs.animation.value = a;
+              inputs.typingSpeed.value = t;
+              inputs.duration.dispatchEvent(new Event('input'));
+              inputs.animation.dispatchEvent(new Event('input'));
+              inputs.typingSpeed.dispatchEvent(new Event('input'));
+          }
+      };
+  }());
+
+  // Пресеты скорости: fast / normal / slow.
+  const speedPresets = { fast: [800, 120, 10], normal: [2800, 300, 30], slow: [6000, 900, 90] };
+  document.querySelectorAll('[data-preset-speed]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+          const p = speedPresets[btn.getAttribute('data-preset-speed')];
+          speed.set(p[0], p[1], p[2]);
+      });
+  });
+
+  // Подмешать текущие значения ползунков в опции show.
+  function withSpeed(opts) {
+      const s = speed.get();
+      opts = opts || {};
+      if (opts.duration    === undefined) opts.duration    = s.duration;
+      if (opts.animation   === undefined) opts.animation   = s.animation;
+      if (opts.typingSpeed === undefined) opts.typingSpeed = s.typingSpeed;
+      return opts;
+  }
+
+  // Создать «карточку»-кнопку для списка.
+  function card(klass, title, meta, onClick) {
+      const btn = document.createElement('button');
+      btn.className = 'card ' + klass;
+      btn.innerHTML = '<div class="title">' + title + '</div>'
+                    + '<div class="meta">' + meta + '</div>';
+      btn.addEventListener('click', onClick);
+      return btn;
+  }
+
+  // 9 позиций — все cyan.
+  const posHost = document.getElementById('positions');
+  FlashAlerts.POSITIONS.forEach(function (p) {
+      posHost.appendChild(card('cyan', p.toUpperCase(), 'Fixed screen slot', function () {
+          alerts.show('Position: ' + p, withSpeed({ position: p }));
+      }));
+  });
+
+  // 6 эффектов — все pink.
+  const effectDescriptions = {
+      fade:    'Opacity 0 → 1 → 0',
+      slide:   'Translate from edge',
+      scale:   'Scale 0.8 → 1 → 0.8',
+      bounce:  'Spring cubic-bezier',
+      typing:  'Char-by-char reveal',
+      instant: 'No transition'
+  };
+  const effHost = document.getElementById('effects');
+  FlashAlerts.EFFECTS.forEach(function (e) {
+      effHost.appendChild(card('pink', e.toUpperCase(), effectDescriptions[e] || '', function () {
+          alerts.show('Effect: ' + e, withSpeed({ effect: e, position: 'top-right' }));
+      }));
+  });
+
+  // 4 пресета — каждый в своём цвете.
+  const presetColor = { success: 'green', error: 'red', warning: 'amber', info: 'cyan' };
+  const presetMeta  = {
+      success: 'Successful operation',
+      error:   'Critical / assertive',
+      warning: 'Caution advised',
+      info:    'Information notice'
+  };
+  const prHost = document.getElementById('presets');
+  FlashAlerts.PRESETS.forEach(function (p) {
+      prHost.appendChild(card(presetColor[p], p.toUpperCase(), presetMeta[p], function () {
+          alerts[p](p.toUpperCase() + ': preset active', withSpeed());
+      }));
+  });
+
+  // ---- Пользовательский пресет ----
+  alerts.addPreset('promo', {
+      style: {
+          'background': 'linear-gradient(135deg, #a855f7 0%, #f0338a 100%)',
+          'color': '#fff',
+          'font-weight': '700',
+          'padding': '16px 22px',
+          'border': 'none',
+          'border-radius': '8px',
+          'box-shadow': '0 0 30px rgba(240, 51, 138, .5), 0 10px 30px rgba(0, 0, 0, .4)',
+          'letter-spacing': '.04em'
+      },
+      duration: 3200
+  });
+  document.getElementById('customPreset').onclick = function () {
+      alerts.promo('BLACK FRIDAY — 40% OFF', withSpeed());
+  };
+
+  // ---- Пользовательский эффект ----
+  alerts.addEffect('rotate', {
+      prepare: function (el, ctx) {
+          el.style.opacity = '0';
+          el.style.transform = 'rotate(-20deg) scale(.6)';
+          el.style.transition = 'transform ' + ctx.animation + 'ms ease, opacity ' + ctx.animation + 'ms ease';
+      },
+      in: function (el) {
+          return new Promise(function (r) {
+              requestAnimationFrame(function () {
+                  requestAnimationFrame(function () {
+                      el.style.opacity = '1';
+                      el.style.transform = 'rotate(0deg) scale(1)';
+                      r();
+                  });
+              });
+          });
+      },
+      out: function (el) {
+          el.style.opacity = '0';
+          el.style.transform = 'rotate(20deg) scale(.6)';
+      }
+  });
+  document.getElementById('customEffect').onclick = function () {
+      alerts.show('Rotate effect engaged', withSpeed({ effect: 'rotate', position: 'bottom-left' }));
+  };
+
+  // ---- Inline target ----
+  document.getElementById('inline').onclick = function () {
+      alerts.show('Deployed inside #inlineBox', withSpeed({
+          target: '#inlineBox',
+          effect: 'slide',
+          style: {
+              'background': 'rgba(251, 191, 36, .15)',
+              'border': '1px solid rgba(251, 191, 36, .6)',
+              'color': '#fbbf24'
+          }
+      }));
+  };
+</script>
+
+</body>
+</html>
