@@ -1,0 +1,47 @@
+# flash-alerts
+
+> Zero-dependency browser alerts/toasts with configurable screen position, animation effects, inline styles and presets. UMD + CJS + ESM. TypeScript definitions. Accessible (role, aria-live, prefers-reduced-motion). ~9 KB minified, ~2.8 KB gzipped.
+
+flash-alerts shows non-blocking notifications in the browser. One class `FlashAlerts`. Nine fixed screen positions plus the ability to mount an alert inside any DOM element via `target`. Six built-in effects (`fade`, `slide`, `scale`, `bounce`, `typing`, `instant`) and four presets (`success`, `error`, `warning`, `info`). Both effects and presets are extensible via `addEffect(name, {prepare, in, out})` and `addPreset(name, config)`.
+
+Nothing is injected into the page by default: no global CSS, no dependencies, no network calls. Styles are applied inline from a `style` map (background, color, padding, border-radius, border, font-family, font-size, font-weight, box-shadow). Containers for fixed positions are lazy-created inside `document.body`.
+
+Accessibility: each alert carries `role` (`status` by default, `alert` for the `error` preset), `aria-live` (`polite` by default, `assertive` for `error`), and `aria-atomic="true"`. When `window.matchMedia('(prefers-reduced-motion: reduce)').matches`, animations are forced to `instant` with `animation=0` and `typingSpeed=1`; opt out via `respectReducedMotion: false`.
+
+## Docs
+
+- [README](https://github.com/Insider515/flash-alerts/blob/main/README.md): full API reference, install, quick start, options tables, positions, effects, presets, styling, A11Y, TypeScript, build/test.
+- [TypeScript definitions](https://github.com/Insider515/flash-alerts/blob/main/index.d.ts): typed interfaces for `FlashAlertsOptions`, `ShowOptions`, `Preset`, `Effect`, `Position`, `BuiltinEffect`, `BuiltinPreset`, `AriaLive`.
+- [LICENSE](https://github.com/Insider515/flash-alerts/blob/main/LICENSE): MIT.
+
+## Source
+
+- [src/flash-alerts.js](https://github.com/Insider515/flash-alerts/blob/main/src/flash-alerts.js): UMD core (readable source, works via `<script>`, CommonJS, AMD).
+- [index.js](https://github.com/Insider515/flash-alerts/blob/main/index.js): CommonJS entry.
+- [index.mjs](https://github.com/Insider515/flash-alerts/blob/main/index.mjs): ESM entry.
+- [dist/flash-alerts.min.js](https://github.com/Insider515/flash-alerts/blob/main/dist/flash-alerts.min.js): minified UMD for production and CDNs.
+
+## Examples
+
+- [examples/demo.html](https://github.com/Insider515/flash-alerts/blob/main/examples/demo.html): interactive demo with all positions, effects, presets, custom modules and inline target.
+- [Live demo](https://insider515.github.io/flash-alerts/examples/demo.html): the demo page hosted on GitHub Pages.
+
+## Tests
+
+- [tests/](https://github.com/Insider515/flash-alerts/tree/main/tests): 81 unit tests via `node:test` + `jsdom`. Covers statics, constructor, show(), 9 positions, 6 effects, 4 presets, target DOM mounting, lifecycle (onShow/onHide, close), style merging, and A11Y behavior.
+
+## Distribution
+
+- [npm package](https://www.npmjs.com/package/flash-alerts): `npm install flash-alerts`.
+- [unpkg](https://unpkg.com/flash-alerts/dist/flash-alerts.min.js): CDN for `<script>` loading.
+- [jsDelivr](https://cdn.jsdelivr.net/npm/flash-alerts/dist/flash-alerts.min.js): alternative CDN.
+
+## Quick API
+
+- `new FlashAlerts(options?)`: create an instance with default `position`, `effect`, `duration`, `animation`, `typingSpeed`, `gap`, `margin`, `zIndex`, `style`, `role`, `ariaLive`, `respectReducedMotion`.
+- `alerts.show(text, opts?)`: show one alert, returns `{ close(), element }`. `opts` may override every default plus `target`, `preset`, `html`, `onShow`, `onHide`.
+- `alerts.success|error|warning|info(text, opts?)`: preset shortcuts; each registered preset becomes a method.
+- `alerts.addPreset(name, config)`: register a reusable preset.
+- `alerts.addEffect(name, {prepare, in, out})`: register a custom effect; `in` may return a Promise to delay the dismiss timer.
+- `alerts.configure(options)`: patch instance defaults in place.
+- Static: `FlashAlerts.POSITIONS`, `FlashAlerts.EFFECTS`, `FlashAlerts.PRESETS`.

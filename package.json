@@ -37,7 +37,8 @@
     "src/",
     "dist/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "llms.txt"
   ],
   "scripts": {
     "test": "node --test tests/*.test.js",
